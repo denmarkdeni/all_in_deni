@@ -32,6 +32,7 @@ export default function AuthInput({ label, icon, ...rest }) {
                      transition-all duration-300"
           style={{ color: "var(--text-color)" }}
           required
+          autoComplete="off"
         />
       </div>
     </div>

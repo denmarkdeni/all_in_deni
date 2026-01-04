@@ -1,0 +1,9 @@
+1.Create Admin user through django shell -- ok 
+
+2.problem in quiz dashboard -- ok 
+
+3.Error submitting quiz 
+
+4.plan a quizzes List page after 
+clicking the startquiz action in @QuizDashboard.jsx  , 
+quizlist page should have the reusable same theme from our project. 

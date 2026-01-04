@@ -23,23 +23,26 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const response = await fetch("http://127.0.0.1:8000/api/quizmaster/login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: form.username,
-        password: form.password,
-      }),
-    });
+    try{
+      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password,
+        }),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("student", data.student);
-      navigate("/quizmaster/dashboard");
-    } else {
-      alert("Invalid credentials");
-      console.log(await response.json());
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("username", data.username);
+        localStorage.setItem("role", data.role);
+        navigate("/quizmaster/dashboard");
+      } else {
+        alert("Invalid credentials",await response.json().error);
+      }
+    } catch (error) {
+      alert("Error during login!",error.message);
     }
   };
 

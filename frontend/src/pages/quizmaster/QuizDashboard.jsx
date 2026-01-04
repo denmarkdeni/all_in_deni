@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import StatCard from "../../components/dashboard/StatCard";
 import ActionButton from "../../components/dashboard/ActionButton";
@@ -12,12 +13,14 @@ import {
   FaCog,
   FaSignOutAlt,
   FaUsers,
-  FaGraduationCap
+  FaGraduationCap,
+  FaLayerGroup
 } from "react-icons/fa";
 
 const QuizDashboard = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [userType, setUserType] = useState("student"); // "student" or "admin"
+  const [userType, setUserType] = useState("student");
   const [stats, setStats] = useState({
     quizzesCompleted: 0,
     averageScore: 0,
@@ -27,74 +30,81 @@ const QuizDashboard = () => {
 
   useEffect(() => {
     // Get user from localStorage
-    const student = localStorage.getItem("student");
-    const admin = localStorage.getItem("admin");
+    const username = localStorage.getItem("username");
+    const role = localStorage.getItem("role");
     
-    if (admin) {
-      setUser(admin);
-      setUserType("admin");
-      // Admin stats
-      setStats({
-        quizzesCompleted: 0,
-        averageScore: 0,
-        totalQuizzes: 12,
-        rank: null,
-      });
-    } else if (student) {
-      setUser(student);
-      setUserType("student");
-      // Student stats
-      setStats({
-        quizzesCompleted: 5,
-        averageScore: 85,
-        totalQuizzes: 10,
-        rank: 3,
-      });
+    if (username) {
+      setUser(username);
+      // Set userType based on role from backend
+      if (role.toLowerCase() === "admin") {
+        setUserType("admin");
+        // Admin stats
+        setStats({
+          quizzesCompleted: 0,
+          averageScore: 0,
+          totalQuizzes: 12,
+          rank: null,
+        });
+      } else {
+        setUserType("student");
+        // Student stats
+        setStats({
+          quizzesCompleted: 5,
+          averageScore: 85,
+          totalQuizzes: 10,
+          rank: 3,
+        });
+      }
     }
   }, []);
 
   const handleStartQuiz = () => {
-    // Navigate to quiz or show quiz selection
-    console.log("Start Quiz clicked");
+    navigate("/quizmaster/quizzes");
   };
 
   const handleViewHistory = () => {
-    console.log("View History clicked");
+    navigate("/quizmaster/results");
   };
 
   const handleManageQuizzes = () => {
-    console.log("Manage Quizzes clicked");
+    navigate("/quizmaster/quizzes");
   };
 
   const handleSettings = () => {
-    console.log("Settings clicked");
+    navigate("/quizmaster/profile");
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("student");
-    localStorage.removeItem("admin");
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
     window.location.href = "/";
   };
 
   // Admin-specific actions
   const adminActions = [
     {
+      icon: <FaLayerGroup />,
+      title: "Create Batch",
+      description: "Create a new student batch",
+      onClick: () => navigate("/quizmaster/create-batch"),
+    },
+    {
       icon: <FaBook />,
       title: "Create Quiz",
       description: "Create a new quiz for students",
-      onClick: () => console.log("Create Quiz"),
+      onClick: () => navigate("/quizmaster/create-quiz"),
     },
     {
       icon: <FaUsers />,
-      title: "Manage Students",
-      description: "View and manage student accounts",
-      onClick: () => console.log("Manage Students"),
+      title: "View Quizzes",
+      description: "View all created quizzes",
+      onClick: () => navigate("/quizmaster/quizzes"),
     },
     {
       icon: <FaChartLine />,
-      title: "Analytics",
-      description: "View detailed analytics and reports",
-      onClick: () => console.log("Analytics"),
+      title: "View Results",
+      description: "View batch-wise results and analytics",
+      onClick: () => navigate("/quizmaster/results"),
     },
   ];
 
@@ -114,9 +124,9 @@ const QuizDashboard = () => {
     },
     {
       icon: <FaTrophy />,
-      title: "Leaderboard",
-      description: "See how you rank among others",
-      onClick: () => console.log("Leaderboard"),
+      title: "My Results",
+      description: "View your quiz results and scores",
+      onClick: handleViewHistory,
     },
   ];
 
@@ -141,7 +151,7 @@ const QuizDashboard = () => {
 
   return (
     <div
-      className="min-h-screen transition-all duration-700 ease-in-out px-4 py-24"
+      className="min-h-screen transition-all duration-700 ease-in-out px-3 sm:px-4 py-12 sm:py-16 md:py-24"
       style={{
         background: `linear-gradient(135deg,
           var(--bg-gradient-start),
@@ -152,38 +162,39 @@ const QuizDashboard = () => {
     >
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="mb-8 animate-fadeIn">
+        <div className="mb-6 sm:mb-8 animate-fadeIn">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
+            <div className="flex-1 min-w-0">Please select a batch to view quizzes
               <h1 
-                className="text-4xl md:text-5xl font-extrabold mb-2
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2
                            bg-clip-text text-transparent
-                           bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
+                           bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500
+                           break-words"
               >
                 Welcome back, {user}!
               </h1>
               <p 
-                className="text-lg opacity-80"
+                className="text-base sm:text-lg opacity-80"
                 style={{ color: "var(--text-color)" }}
               >
                 {userType === "admin" ? "Manage your quiz platform" : "Ready to test your knowledge?"}
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <ActionButton
                 variant="secondary"
                 onClick={handleSettings}
-                className="w-auto px-4"
+                className="w-auto px-3 sm:px-4 text-sm sm:text-base flex-1 sm:flex-none"
               >
-                <FaCog className="inline mr-2" />
+                <FaCog className="inline mr-1 sm:mr-2" />
                 Settings
               </ActionButton>
               <ActionButton
                 variant="secondary"
                 onClick={handleLogout}
-                className="w-auto px-4"
+                className="w-auto px-3 sm:px-4 text-sm sm:text-base flex-1 sm:flex-none"
               >
-                <FaSignOutAlt className="inline mr-2" />
+                <FaSignOutAlt className="inline mr-1 sm:mr-2" />
                 Logout
               </ActionButton>
             </div>
@@ -191,7 +202,7 @@ const QuizDashboard = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
           {userType === "student" ? (
             <>
               <div className="animate-slideInUp" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
@@ -266,14 +277,14 @@ const QuizDashboard = () => {
         </div>
 
         {/* Actions Section */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <h2 
-            className="text-2xl font-bold mb-6"
+            className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6"
             style={{ color: "var(--text-color)" }}
           >
             Quick Actions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
             {(userType === "admin" ? adminActions : studentActions).map((action, index) => (
               <div
                 key={index}
@@ -284,22 +295,22 @@ const QuizDashboard = () => {
                 }}
               >
                 <DashboardCard onClick={action.onClick}>
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-3 sm:gap-4">
                     <div 
-                      className="text-3xl opacity-80 flex-shrink-0" 
+                      className="text-2xl sm:text-3xl opacity-80 flex-shrink-0" 
                       style={{ color: "var(--text-color)" }}
                     >
                       {action.icon}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <h3 
-                        className="text-xl font-semibold mb-2"
+                        className="text-lg sm:text-xl font-semibold mb-1 sm:mb-2"
                         style={{ color: "var(--text-color)" }}
                       >
                         {action.title}
                       </h3>
                       <p 
-                        className="text-sm opacity-70"
+                        className="text-xs sm:text-sm opacity-70 break-words"
                         style={{ color: "var(--text-color)" }}
                       >
                         {action.description}
@@ -315,15 +326,15 @@ const QuizDashboard = () => {
         {/* Main Action Card */}
         <div className="animate-slideInUp" style={{ animationDelay: "0.8s", animationFillMode: "both" }}>
           <DashboardCard className="text-center">
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <h2 
-                className="text-3xl font-bold mb-3"
+                className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-3 px-2"
                 style={{ color: "var(--text-color)" }}
               >
                 {userType === "admin" ? "Manage Your Platform" : "Ready to Start?"}
               </h2>
               <p 
-                className="text-lg opacity-80 mb-6"
+                className="text-base sm:text-lg opacity-80 mb-4 sm:mb-6 px-2"
                 style={{ color: "var(--text-color)" }}
               >
                 {userType === "admin" 
@@ -331,8 +342,11 @@ const QuizDashboard = () => {
                   : "Take a quiz and test your knowledge 🎯"}
               </p>
             </div>
-            <div className="max-w-md mx-auto">
-              <ActionButton onClick={userType === "admin" ? handleManageQuizzes : handleStartQuiz}>
+            <div className="max-w-md mx-auto px-2">
+              <ActionButton 
+                onClick={userType === "admin" ? handleManageQuizzes : handleStartQuiz}
+                className="w-full sm:w-auto"
+              >
                 {userType === "admin" ? "Manage Quizzes" : "Start Quiz"}
               </ActionButton>
             </div>
