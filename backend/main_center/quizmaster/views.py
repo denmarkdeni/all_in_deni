@@ -295,6 +295,9 @@ def list_quizzes(request):
 @api_view(['GET'])
 def get_quiz(request, quiz_id):
     """Get quiz details with questions (for taking quiz)"""
+    # #region agent log
+    import json; open('/home/maria-deniston/Public/MariaDeniston/all_in_deni/.cursor/debug.log','a').write(json.dumps({'sessionId':'debug-session','runId':'run1','hypothesisId':'A','location':'views.py:296','message':'get_quiz called','data':{'method':request.method,'quiz_id':quiz_id,'path':request.path},'timestamp':int(__import__('time').time()*1000)})+'\n')
+    # #endregion
     username = request.GET.get('username')
     
     if not username:
@@ -384,6 +387,9 @@ def get_quiz(request, quiz_id):
 @api_view(['POST'])
 def start_quiz(request):
     """Start a quiz attempt (track start time)"""
+    # #region agent log
+    import json; open('/home/maria-deniston/Public/MariaDeniston/all_in_deni/.cursor/debug.log','a').write(json.dumps({'sessionId':'debug-session','runId':'run1','hypothesisId':'A','location':'views.py:385','message':'start_quiz called','data':{'method':request.method,'path':request.path},'timestamp':int(__import__('time').time()*1000)})+'\n')
+    # #endregion
     username = request.data.get('username')
     quiz_id = request.data.get('quiz_id')
     

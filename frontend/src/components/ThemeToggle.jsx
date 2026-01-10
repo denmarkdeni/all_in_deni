@@ -22,6 +22,7 @@ export default function ThemeToggle() {
       className="fixed top-4 right-4 z-50 p-3 rounded-full text-lg 
                 bg-white/40 dark:bg-black/30 hover:cursor-pointer
                 border border-gray-300 dark:border-gray-700
+                text-black dark:text-white
                 backdrop-blur-md transition-all duration-300
                 hover:scale-110"
     >

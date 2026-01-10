@@ -62,6 +62,9 @@ const TakeQuiz = () => {
         setAnswers(new Array(data.quiz.questions.length).fill(null));
         
         // Start the quiz attempt
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/e96703f0-0784-4b75-a281-3e425ac96b14',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TakeQuiz.jsx:65',message:'Starting quiz POST request',data:{url:'http://127.0.0.1:8000/api/quizmaster/quizzes/start/',method:'POST',username,quiz_id:quizId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         const startResponse = await fetch("http://127.0.0.1:8000/api/quizmaster/quizzes/start/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -70,6 +73,9 @@ const TakeQuiz = () => {
             quiz_id: quizId,
           }),
         });
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/e96703f0-0784-4b75-a281-3e425ac96b14',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TakeQuiz.jsx:73',message:'Quiz start response received',data:{status:startResponse.status,statusText:startResponse.statusText,ok:startResponse.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
 
         if (startResponse.ok) {
           const startData = await startResponse.json();

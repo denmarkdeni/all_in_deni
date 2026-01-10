@@ -13,6 +13,11 @@ class UserSerializer(serializers.Serializer):
     education = serializers.CharField(required=False, allow_blank=True)
     other_info = serializers.CharField(required=False, allow_blank=True)
 
+    def create(self, validated_data):
+        user = User(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
 class UserProfileSerializer(serializers.Serializer):
     """Serializer for user profile (without password)"""
@@ -24,12 +29,6 @@ class UserProfileSerializer(serializers.Serializer):
     education = serializers.CharField(required=False, allow_blank=True)
     other_info = serializers.CharField(required=False, allow_blank=True)
     created_at = serializers.DateTimeField(read_only=True)
-
-    def create(self, validated_data):
-        user = User(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
 
 
 class BatchSerializer(serializers.Serializer):

@@ -164,7 +164,7 @@ const QuizDashboard = () => {
         {/* Header Section */}
         <div className="mb-6 sm:mb-8 animate-fadeIn">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex-1 min-w-0">Please select a batch to view quizzes
+            <div className="flex-1 min-w-0">
               <h1 
                 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2
                            bg-clip-text text-transparent

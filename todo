@@ -2,8 +2,12 @@
 
 2.problem in quiz dashboard -- ok 
 
-3.Error submitting quiz 
+3.Error submitting quiz -- ok 
 
 4.plan a quizzes List page after 
 clicking the startquiz action in @QuizDashboard.jsx  , 
-quizlist page should have the reusable same theme from our project. 
+quizlist page should have the reusable same theme from our project.  --ok
+
+5.make reports for quiz results like export in excel.
+
+6.deploy this web app.
