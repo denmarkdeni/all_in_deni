@@ -265,7 +265,7 @@ def list_quizzes(request):
         else:
             quizzes = Quiz.objects(is_active=True).order_by('-created_at')
     else:
-        user_batch = user.batch
+        user_batch = batch or user.batch
         if not user_batch:
             return Response(
                 {"success": True, "quizzes": [], "message": "No batch assigned to user"}

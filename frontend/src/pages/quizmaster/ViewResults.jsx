@@ -18,8 +18,8 @@ const ViewResults = () => {
 
   useEffect(() => {
     const user = localStorage.getItem("username");
-    const role = localStorage.getItem("role");
-    
+    const role = localStorage.getItem("role"); 
+
     if (!user) {
       navigate("/quizmaster/login");
       return;
@@ -28,15 +28,22 @@ const ViewResults = () => {
     setUsername(user);
     setUserType(role?.toLowerCase() || "student");
     
-    if (quizId) {
+  }, [navigate]);
+
+  useEffect(() => {
+    if (quizId && username) {
       setViewMode("quiz");
-      fetchQuizResults(quizId);
-    } else {
-      setViewMode("batch");
-      fetchBatches();
-      fetchBatchResults();
+      fetchQuizResults(quizId, username);
+    } else if (username && userType) { 
+      if (userType === "admin") {
+        setViewMode("batch");
+        fetchBatches();
+        fetchBatchResults(null, username);
+      } else {
+        navigate("/quizmaster/dashboard");
+      }
     }
-  }, [quizId, navigate]);
+  }, [quizId, username, userType]);
 
   const fetchBatches = async () => {
     try {
@@ -50,11 +57,11 @@ const ViewResults = () => {
     }
   };
 
-  const fetchQuizResults = async (qId) => {
+  const fetchQuizResults = async (qId , usernameParam = username) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/quizmaster/quizzes/${qId}/results/?username=${username}`
+        `http://127.0.0.1:8000/api/quizmaster/quizzes/${qId}/results/?username=${usernameParam}`
       );
       const data = await response.json();
       
@@ -71,12 +78,12 @@ const ViewResults = () => {
     }
   };
 
-  const fetchBatchResults = async (batch = null) => {
-    if (userType !== "admin") return;
+  const fetchBatchResults = async (batch = null, usernameParam = username) => {
+    // if (userType !== "admin") return;
     
     setLoading(true);
     try {
-      let url = `http://127.0.0.1:8000/api/quizmaster/results/batch/?username=${username}`;
+      let url = `http://127.0.0.1:8000/api/quizmaster/results/batch/?username=${usernameParam}`;
       if (batch) {
         url += `&batch=${batch}`;
       }
@@ -110,16 +117,16 @@ const ViewResults = () => {
     const batch = e.target.value;
     setSelectedBatch(batch);
     if (viewMode === "batch") {
-      fetchBatchResults(batch);
+      fetchBatchResults(batch, username);
     } else if (quizId) {
       // Re-fetch quiz results with batch filter (if needed)
-      fetchQuizResults(quizId);
+      fetchQuizResults(quizId, username);
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString) => {  
     if (!dateString) return "N/A";
-    const date = new Date(dateString);
+    const date = new Date(dateString); 
     return date.toLocaleString();
   };
 
@@ -175,7 +182,7 @@ const ViewResults = () => {
         </div>
 
         {/* Batch Filter for Admin */}
-        {userType === "admin" && viewMode === "batch" && (
+        {userType === "admin" && viewMode === "batch" && batches.length > 0 &&(
           <DashboardCard className="mb-6">
             <h2 className="text-lg font-semibold mb-4" style={{ color: "var(--text-color)" }}>
               Filter by Batch
