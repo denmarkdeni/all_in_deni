@@ -28,13 +28,13 @@ urlpatterns = [
     
     # Quiz Management
     path('quizzes/', views.list_quizzes, name='list_quizzes'),
-    path('quizzes/create/', views.create_quiz, name='create_quiz'),
+    path('quiz/create/', views.create_quiz, name='create_quiz'),
     
-    path('quizzes/start/', views.start_quiz, name='start_quiz'),
-    path('quizzes/submit/', views.submit_quiz, name='submit_quiz'),
+    path('quiz/start/', views.start_quiz, name='start_quiz'),
+    path('quiz/submit/', views.submit_quiz, name='submit_quiz'),
 
-    path('quizzes/<str:quiz_id>/', views.get_quiz, name='get_quiz'),
-    path('quizzes/<str:quiz_id>/results/', views.get_quiz_results, name='get_quiz_results'),
+    path('quiz/<str:quiz_id>/get/', views.get_quiz, name='get_quiz'),
+    path('quiz/<str:quiz_id>/results/', views.get_quiz_results, name='get_quiz_results'),
     
     path('attempts/', views.get_student_attempts, name='get_student_attempts'),
     

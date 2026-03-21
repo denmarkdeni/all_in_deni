@@ -8,6 +8,8 @@ import { FaUser, FaEnvelope } from "react-icons/fa";
 import { RiLockPasswordFill, RiLockPasswordLine } from "react-icons/ri";
 import { HiUserCircle } from "react-icons/hi";
 
+import api from "../../api/client";
+
 const Register = () => {
   const [formData, setFormData] = useState({
     full_name: "",
@@ -33,22 +35,24 @@ const Register = () => {
       return;
     }
 
-    const response = await fetch("http://127.0.0.1:8000/api/quizmaster/register/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const response = await api.post('/quizmaster/register/', {
         full_name: formData.full_name,
         username: formData.username,
         email: formData.email,
         password: formData.password,
-      }),
-    });
-
-    if (response.ok) {
-      alert("Registration successful!");
-      window.location.href = "/quizmaster/login";
-    } else {
-      alert("Error during registration!");
+      });
+   
+      if (response.status >= 200 && response.status < 300) {
+        alert('Registration successful!');
+        window.location.href = '/quizmaster/login';
+      }
+    } catch (error) { 
+      if (error.response) {
+        alert('Error during registration: ' + (error.response.data?.detail || 'Server error'));
+      } else {
+        alert('Network error during registration!');
+      }
     }
   };
 

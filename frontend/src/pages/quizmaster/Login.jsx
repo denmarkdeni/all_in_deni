@@ -8,6 +8,8 @@ import { FaUser } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
+import api from "../../api/client";
+
 export default function Login() {
   const [form, setForm] = useState({ username: "", password: "" });
   const navigate = useNavigate();
@@ -24,25 +26,24 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try{
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/login/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-        }),
+      const response = await api.post('/quizmaster/login/', {
+        username: form.username,
+        password: form.password,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("username", data.username);
-        localStorage.setItem("role", data.role);
-        navigate("/quizmaster/dashboard");
+      if (response.status >= 200 && response.status < 300) {
+        localStorage.setItem('username', response.data.username);
+        localStorage.setItem('role', response.data.role);
+        navigate('/quizmaster/dashboard');
       } else {
-        alert("Invalid credentials",await response.json().error);
+        alert(`Error during login: ${response.data.error}`);
       }
     } catch (error) {
-      alert("Error during login!",error.message);
+      if (error.response && error.response.data?.error) {
+        alert(`Invalid credentials: ${error.response.data.error}`);
+      } else {
+        alert('Error during login!');
+      }
     }
   };
 

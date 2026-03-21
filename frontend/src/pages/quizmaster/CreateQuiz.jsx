@@ -4,6 +4,7 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import ActionButton from "../../components/dashboard/ActionButton";
 import AuthInput from "../../components/auth/AuthInput";
 import { FaPlus, FaTrash, FaArrowLeft, FaSave } from "react-icons/fa";
+import api from "../../api/client";
 
 const CreateQuiz = () => {
   const navigate = useNavigate();
@@ -42,13 +43,19 @@ const CreateQuiz = () => {
 
   const fetchBatches = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/batches/");
-      if (response.ok) {
-        const data = await response.json();
+      const response = await api.get('/quizmaster/batches/'); 
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
         setBatches(data.batches || []);
+      } else {
+        alert(`Error fetching batches: ${response.data.error}`);
       }
     } catch (error) {
-      console.error("Error fetching batches:", error);
+      if (error.response && error.response.data?.error) {
+        alert(`Error fetching batches: ${error.response.data.error}`);
+      } else {
+        alert('Error fetching batches!');
+      }
     }
   };
 
@@ -168,22 +175,22 @@ const CreateQuiz = () => {
         payload.end_date = new Date(quizData.end_date).toISOString();
       }
 
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/quizzes/create/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await api.post('/quizmaster/quiz/create/', payload);
 
-      const data = await response.json();
+      const data = await response.data;
 
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         alert("Quiz created successfully!");
         navigate("/quizmaster/dashboard");
       } else {
         alert(data.error || "Error creating quiz");
       }
     } catch (error) {
-      alert("Error creating quiz: " + error.message);
+      if (error.response && error.response.data?.error) {
+        alert(`Error creating quiz: ${error.response.data.error}`);
+      } else {
+        alert('Error creating quiz!');
+      }
     } finally {
       setLoading(false);
     }

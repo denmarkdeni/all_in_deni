@@ -4,6 +4,8 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import ActionButton from "../../components/dashboard/ActionButton";
 import { FaArrowLeft, FaTrophy, FaUser, FaCalendar, FaChartLine } from "react-icons/fa";
 
+import api from "../../api/client";
+
 const ViewResults = () => {
   const navigate = useNavigate();
   const { quizId } = useParams();
@@ -47,32 +49,39 @@ const ViewResults = () => {
 
   const fetchBatches = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/batches/");
-      if (response.ok) {
-        const data = await response.json();
+      const response = await api.get('/quizmaster/batches/');
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
         setBatches(data.batches || []);
+      } else {
+        alert(`Error fetching batches: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error fetching batches:", error);
+      if (error.response && error.response.data?.error) {
+        alert(`Error fetching batches: ${error.response.data.error}`);
+      } else {
+        alert('Error fetching batches!');
+      }
     }
   };
 
   const fetchQuizResults = async (qId , usernameParam = username) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/quizmaster/quizzes/${qId}/results/?username=${usernameParam}`
-      );
-      const data = await response.json();
-      
-      if (response.ok) {
+      const response = await api.get(`/quizmaster/quiz/${qId}/results/?username=${usernameParam}`);
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
         setQuizTitle(data.quiz_title);
         setResults(data.results || []);
       } else {
-        alert(data.error || "Error loading results");
+        alert(`Error loading results: ${data.error}`);
       }
     } catch (error) {
-      alert("Error loading results: " + error.message);
+      if (error.response && error.response.data?.error) {
+        alert(`Error loading results: ${error.response.data.error}`);
+      } else {
+        alert('Error loading results!');
+      }
     } finally {
       setLoading(false);
     }
@@ -83,15 +92,13 @@ const ViewResults = () => {
     
     setLoading(true);
     try {
-      let url = `http://127.0.0.1:8000/api/quizmaster/results/batch/?username=${usernameParam}`;
+      let url = `/quizmaster/results/batch/?username=${usernameParam}`;
       if (batch) {
         url += `&batch=${batch}`;
       }
-      
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      if (response.ok) {
+      const response = await api.get(url);
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
         // Flatten batch results for display
         const flattenedResults = [];
         data.batch_results.forEach((batchResult) => {

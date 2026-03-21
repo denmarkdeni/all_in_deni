@@ -151,7 +151,7 @@ const QuizList = () => {
               className="w-full sm:w-auto px-4 py-2 rounded-lg border border-indigo-400/40 bg-white/10 dark:bg-black/10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               style={{ color: "var(--text-color)" }}
             >
-              <option value="">Select Batch</option>
+              <option value="" hidden>Select Batch</option>
               {batches.map((batch) => (
                 <option key={batch.batch_code} value={batch.batch_code}>
                   {batch.name} ({batch.batch_code})

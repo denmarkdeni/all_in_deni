@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import ActionButton from "../../components/dashboard/ActionButton";
 import { FaArrowLeft, FaSave, FaUser, FaEnvelope, FaLayerGroup, FaGraduationCap, FaInfoCircle } from "react-icons/fa";
+import api from "../../api/client";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -40,12 +41,10 @@ const Profile = () => {
     if (!username) return;
     setLoading(true);
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/quizmaster/profile/?username=${username}`
-      );
-      const data = await response.json();
+      const response = await api.get(`/quizmaster/profile/?username=${username}`);
+      const data = await response.data;
       
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         setProfileData(data.profile);
         // Update localStorage with batch if it exists
         if (data.profile.batch) {
@@ -63,13 +62,19 @@ const Profile = () => {
 
   const fetchBatches = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/batches/");
-      if (response.ok) {
-        const data = await response.json();
+      const response = await api.get('/quizmaster/batches/');
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
         setBatches(data.batches || []);
+      } else {
+        alert(`Error fetching batches: ${response.data.error}`);
       }
     } catch (error) {
-      console.error("Error fetching batches:", error);
+      if (error.response && error.response.data?.error) {
+        alert(`Error fetching batches: ${error.response.data.error}`);
+      } else {
+        alert('Error fetching batches!');
+      }
     }
   };
 
@@ -83,22 +88,18 @@ const Profile = () => {
     setSaving(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/profile/update/", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: profileData.username,
-          email: profileData.email,
-          batch: profileData.batch,
-          full_name: profileData.full_name,
-          education: profileData.education,
-          other_info: profileData.other_info,
-        }),
+      const response = await api.put('/quizmaster/profile/update/', { 
+        username: profileData.username,
+        email: profileData.email,
+        batch: profileData.batch,
+        full_name: profileData.full_name,
+        education: profileData.education,
+        other_info: profileData.other_info,
       });
 
-      const data = await response.json();
+      const data = await response.data;
 
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         alert("Profile updated successfully!");
         // Update localStorage with batch
         if (data.profile.batch) {

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import ActionButton from "../../components/dashboard/ActionButton";
 import { FaArrowLeft, FaSave, FaCalendar } from "react-icons/fa";
+import api from "../../api/client";
 
 const CreateBatch = () => {
   const navigate = useNavigate();
@@ -61,22 +62,22 @@ const CreateBatch = () => {
     }
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/batches/create/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(batchData),
-      });
+      const response = await api.post('/quizmaster/batches/create/', batchData);
 
-      const data = await response.json();
+      const data = await response.data;
 
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         alert("Batch created successfully!");
         navigate("/quizmaster/dashboard");
       } else {
-        alert(data.error || "Error creating batch");
+        alert(`Error creating batch: ${response.data.error}`);
       }
     } catch (error) {
-      alert("Error creating batch: " + error.message);
+      if (error.response && error.response.data?.error) {
+        alert(`Error creating batch: ${error.response.data.error}`);
+      } else {
+        alert('Error creating batch!');
+      }
     } finally {
       setLoading(false);
     }

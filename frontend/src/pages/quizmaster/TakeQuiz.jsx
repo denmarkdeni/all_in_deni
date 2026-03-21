@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import ActionButton from "../../components/dashboard/ActionButton";
 import { FaArrowLeft, FaCheckCircle, FaClock, FaSave } from "react-icons/fa";
+import api from "../../api/client";
 
 const TakeQuiz = () => {
   const navigate = useNavigate();
@@ -52,12 +53,9 @@ const TakeQuiz = () => {
     
     setLoading(true);
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/quizmaster/quizzes/${quizId}/?username=${username}`
-      );
-      const data = await response.json();
-      
-      if (response.ok) {
+      const response = await api.get(`/quizmaster/quiz/${quizId}/get/?username=${username}`);
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
         setQuiz(data.quiz);
         setAnswers(new Array(data.quiz.questions.length).fill(null));
         
@@ -65,29 +63,27 @@ const TakeQuiz = () => {
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/e96703f0-0784-4b75-a281-3e425ac96b14',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TakeQuiz.jsx:65',message:'Starting quiz POST request',data:{url:'http://127.0.0.1:8000/api/quizmaster/quizzes/start/',method:'POST',username,quiz_id:quizId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
-        const startResponse = await fetch("http://127.0.0.1:8000/api/quizmaster/quizzes/start/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username,
-            quiz_id: quizId,
-          }),
+        const startResponse = await api.post('/quizmaster/quiz/start/', {
+          username,
+          quiz_id: quizId,
         });
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/e96703f0-0784-4b75-a281-3e425ac96b14',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TakeQuiz.jsx:73',message:'Quiz start response received',data:{status:startResponse.status,statusText:startResponse.statusText,ok:startResponse.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
-
-        if (startResponse.ok) {
-          const startData = await startResponse.json();
+        const startData = await startResponse.data;
+        if (startResponse.status >= 200 && startResponse.status < 300) {
+          
           setStartedAt(new Date(startData.started_at));
-          setTimeRemaining(data.quiz.duration_minutes * 60);
+          setTimeRemaining(startData.duration_minutes * 60);
+        } else {
+          alert(`Error starting quiz: ${startResponse.data.error}`);
         }
       } else {
         alert(data.error || "Error loading quiz");
         navigate("/quizmaster/quizzes");
       }
     } catch (error) {
-      alert("Error loading quiz: " + error.message);
+      alert("Error loading quiz: " + error.response.data.error);
       navigate("/quizmaster/quizzes");
     } finally {
       setLoading(false);
@@ -117,19 +113,15 @@ const TakeQuiz = () => {
       // Fill any unanswered questions with -1
       const finalAnswers = answers.map((ans) => (ans === null ? -1 : ans));
 
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/quizzes/submit/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          quiz_id: quizId,
-          answers: finalAnswers,
-        }),
+      const response = await api.post('/quizmaster/quiz/submit/', {
+        username,
+        quiz_id: quizId,
+        answers: finalAnswers,
       });
 
-      const data = await response.json();
+      const data = await response.data;
 
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         setSubmitted(true);
         setResult(data);
       } else {
@@ -148,21 +140,19 @@ const TakeQuiz = () => {
     const finalAnswers = answers.map((ans) => (ans === null ? -1 : ans));
     
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/quizmaster/quizzes/submit/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          quiz_id: quizId,
-          answers: finalAnswers,
-        }),
+      const response = await api.post('/quizmaster/quiz/submit/', {
+        username,
+        quiz_id: quizId,
+        answers: finalAnswers,
       });
 
-      const data = await response.json();
-      if (response.ok) {
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
         setSubmitted(true);
         setResult(data);
         alert("Time's up! Quiz submitted automatically.");
+      } else {
+        alert(`Error auto-submitting: ${data.error}`);
       }
     } catch (error) {
       console.error("Error auto-submitting:", error);

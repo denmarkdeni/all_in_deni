@@ -21,6 +21,11 @@
     --card-bg: rgba(30, 30, 30, 0.55);
     --card-border: rgba(255, 255, 255, 0.1);
   }
+
+  select option{
+    color: var(--text-color);
+    background-color: var(--bg-gradient-mid);
+  }
   
   /* Common Glass Style */
   .glass-card {
