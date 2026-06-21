@@ -619,6 +619,41 @@ def get_quiz_results(request, quiz_id):
         "results": results
     })
 
+@api_view(['GET'])
+def get_student_results(request):
+    username = request.GET.get('username')
+    if not username:
+        return Response(
+            {'error': 'Username required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    user = User.objects(username=username).first()
+    if not user:
+        return Response(
+            {'error': 'User not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    attempts = QuizAttempt.objects(student_username=username, is_submitted=True).order_by('-submitted_at')
+    results = []
+    for attempt in attempts:
+        result = {
+            'id': str(attempt.id),
+            'quiz_id': attempt.quiz_id,
+            'quiz_title': Quiz.objects.get(id=ObjectId(attempt.quiz_id)).title,
+            'score': attempt.score,
+            'total_points': attempt.total_points,
+            'percentage': round(attempt.percentage, 2),
+            'submitted_at': attempt.submitted_at.isoformat() if attempt.submitted_at else None,
+            'time_taken_minutes': attempt.time_taken_minutes
+        }
+        results.append(result)
+    return Response({
+        "success": True,
+        "results": results
+    })
+
 
 # ==================== BATCH-WISE RESULTS (ADMIN) ====================
 

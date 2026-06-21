@@ -37,7 +37,8 @@ urlpatterns = [
     path('quiz/<str:quiz_id>/results/', views.get_quiz_results, name='get_quiz_results'),
     
     path('attempts/', views.get_student_attempts, name='get_student_attempts'),
-    
+    path('results/student/', views.get_student_results, name='get_student_results'),
+
     # Batch-wise Results (Admin)
     path('results/batch/', views.get_batch_results, name='get_batch_results'),
 ]

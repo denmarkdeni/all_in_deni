@@ -41,11 +41,37 @@ const ViewResults = () => {
         setViewMode("batch");
         fetchBatches();
         fetchBatchResults(null, username);
-      } else {
+      } else if (userType === "student"){
+        setViewMode("student");
+        fetchStudentResults(username);
+      }
+      else {
         navigate("/quizmaster/dashboard");
       }
     }
   }, [quizId, username, userType]);
+
+
+  const fetchStudentResults = async (usernameParam = username) => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/quizmaster/results/student/?username=${usernameParam}`);
+      const data = await response.data;
+      if (response.status >= 200 && response.status < 300) {
+        setResults(data.results || []);
+      } else {
+        alert(`Error loading results: ${data.error}`);
+      }
+    } catch (error) {
+      if (error.response && error.response.data?.error) {
+        alert(`Error loading results: ${error.response.data.error}`);
+      } else {
+        alert('Error loading results!');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchBatches = async () => {
     try {

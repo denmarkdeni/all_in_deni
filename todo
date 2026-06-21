@@ -11,3 +11,51 @@ quizlist page should have the reusable same theme from our project.  --ok
 5.make reports for quiz results like export in excel.
 
 6.deploy this web app.
+--------------------------------------------------------------
+
+Your Deployment Flow (React + Django + MongoDB)
+
+    1️⃣ Server Setup
+
+    Create VPS in DigitalOcean
+    → SSH → basic security → install packages
+
+    2️⃣ Backend Setup (Django)
+
+    Clone project
+    Create venv
+    Install requirements
+    Configure env variables
+    Connect to MongoDB Atlas
+
+    3️⃣ Test Django
+
+    Run:
+
+    python manage.py runserver 0.0.0.0:8000
+
+    If this fails → stop. Fix here.
+
+    4️⃣ Gunicorn Setup
+
+    Use Gunicorn
+    → Run Django in production mode
+    → Create system service
+
+    5️⃣ Nginx Setup
+
+    Use Nginx
+    → Reverse proxy → route traffic to Gunicorn
+    → Serve static files
+
+    6️⃣ Frontend (React)
+
+    Choose ONE:
+
+    Build → serve via Nginx
+    or
+    Deploy separately (Vercel)
+    
+    7️⃣ Domain + HTTPS
+    Point domain → server IP
+    Install SSL (HTTPS)
